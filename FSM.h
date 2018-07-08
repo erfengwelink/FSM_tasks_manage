@@ -16,7 +16,7 @@
 typedef int FSM_Event;
 typedef int FSM_State;
 typedef char* FSM_Output;
-typedef void (*FSM_Handle)(void *param);
+typedef void (*FSM_Handle)(void *param, int i);
 
 typedef struct __fsm_table__{
     FSM_Event event;

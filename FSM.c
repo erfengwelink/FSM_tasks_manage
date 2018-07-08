@@ -11,25 +11,36 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void FSM_register(FSM *pFSM, FSM_table *Ptable, int count, FSM_State curState)
+void FSM_register(FSM *pFSM, FSM_table *Ptable, FSM_State curState)
 {
     pFSM->fsmTable = Ptable;
-    pFSM->cnt = count;
+    pFSM->cnt = sizeof(Ptable) / sizeof(FSM_table);
     pFSM->curState = curState;
 }
 
 void FSM_EventHandle(FSM *pFSM, FSM_Event event)
 {
+    int i = 0;
     FSM_State ps = pFSM->curState;
-    if(0 != ps && event == pFSM->fsmTable[ps-1].event)
+    FSM_Handle handle = NULL;
+    for (; i < pFSM->cnt; i++)
     {
-        printf("%s | cnt:%d\n",pFSM->fsmTable[ps-1].output, pFSM->cnt);
-        pFSM->curState = pFSM->fsmTable[ps-1].nextState;
-        pFSM->cnt++;
+        if (0 != ps && event == pFSM->fsmTable[i].event)
+        {
+            //printf("%s | cnt:%d\n",pFSM->fsmTable[i].output, pFSM->cnt);
+            handle = pFSM->fsmTable[i].handle;
+            pFSM->curState = pFSM->fsmTable[i].nextState;
+            pFSM->cnt++;
+            break;
+        }
+        else
+        {
+            printf("invalid event END!\n");
+        }
     }
-    else
+
+    if(handle)
     {
-        printf("invalid event END!\n");
+        handle(pFSM, i);
     }
 }
-

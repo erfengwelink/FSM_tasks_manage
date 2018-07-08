@@ -11,9 +11,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void handle(void *param)
+void handle(void *param, int i)
 {
-
+    FSM *pFSM = (FSM *)param;
+    printf("%s | cnt:%d\n",pFSM->fsmTable[i].output, pFSM->cnt);
 }
 
 enum{
