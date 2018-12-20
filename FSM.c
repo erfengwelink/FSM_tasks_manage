@@ -11,9 +11,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void FSM_register(FSM *pFSM, FSM_table *Ptable, int count, FSM_State curState)
+void FSM_register(FSM *pFSM, FSM_table *ptable, int count, FSM_State curState)
 {
-    pFSM->fsmTable = Ptable;
+    pFSM->fsmTable = ptable;
     pFSM->cnt = count;
     pFSM->curState = curState;
 }
@@ -22,23 +22,39 @@ void FSM_EventHandle(FSM *pFSM, FSM_Event event)
 {
     int i = 0;
     FSM_State ps = pFSM->curState;
-    FSM_Handle handle = NULL;
+    FSM_Handle transHandle = NULL;
+    FSM_Handle TOHandle = NULL;
     for (; i < pFSM->cnt; i++)
     {
         if (0 != ps && event == pFSM->fsmTable[i].event)
         {
-            handle = pFSM->fsmTable[i].handle;
+            transHandle = pFSM->fsmTable[i].handle;
             pFSM->curState = pFSM->fsmTable[i].nextState;
             break;
         }
-        else
+        else if(NO_TO_STATE != pFSM->fsmTable[i].TOState && pFSM->fsmTable[i].tval > 0)
         {
+            static cnt = 0;
+            if(cnt < pFSM->fsmTable[i].tval)
+            {
+                cnt++;
+            }
+            else
+            {
+                TOHandle = pFSM->fsmTable[i].TOHandle;
+                cnt = 0;
+            }
+        }else{
             //printf("invalid event END!\n");
         }
     }
 
-    if(handle)
+    if(transHandle)     /* normal transformation */
     {
-        handle(pFSM);
+        transHandle(pFSM);
+    }
+    else if(TOHandle)   /* timeout transformation */
+    { 
+        TOHandle(pFSM);
     }
 }
